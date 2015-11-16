@@ -5,7 +5,7 @@ import binascii
 # SLIP decoder
 class slip():
 
-	def __init__(self):
+	def __init__(self, serialFD = None):
 		self.started = False
 		self.escaped = False
 		self.stream = ''
@@ -14,7 +14,7 @@ class slip():
 		self.SLIP_ESC = '\xdb'		# dec: 219
 		self.SLIP_ESC_END = '\xdc'	# dec: 220
 		self.SLIP_ESC_ESC = '\xdd'	# dec: 221
-		self.serialComm = None
+		self.serialComm = serialFD
 		
 	def attachSerialComm(self, serialFD):
 		self.serialComm = serialFD
