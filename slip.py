@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import serial
+import serial as sc
 import binascii
 
 # SLIP decoder
