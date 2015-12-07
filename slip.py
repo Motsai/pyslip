@@ -40,9 +40,6 @@ class slip():
 		packet = b''
 		received = 0
 		while 1:
-			# ii = ii + 1
-			# if ii > 50:
-			# 	return packet
 			serialByte = stream.read(1)
 			if serialByte is None:
 				raise Exception('Bad character from stream')
@@ -93,15 +90,13 @@ class slip():
 
 	def append(self, chunk):
 		self.stream += chunk
-		# self.stream += chunk.decode('iso-8859-1')
 
-	def decodePackets(self):
+	def decodePackets(self, stream):
 		packetlist = []
-		packet = self.receivePacketFromStream(self.stream)
-		packetlist.append(packet)
+		packet = self.receivePacketFromStream(stream)
 		while(packet != b''):
-			packet = self.receivePacketFromStream(self.stream)
 			packetlist.append(packet)
+			packet = self.receivePacketFromStream(stream)
 		return packetlist
 
 	def decode(self):
@@ -149,7 +144,6 @@ class slip():
 		# Encode an initial END character to flush out any data that 
 		# may have accumulated in the receiver due to line noise
 		encoded = b''
-		# encoded = self.SLIP_END
 		packetBytes = [packet[ii:ii+1] for ii in range(len(packet))]
 		for byte in packetBytes:
 			# SLIP_END

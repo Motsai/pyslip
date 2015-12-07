@@ -10,13 +10,8 @@ class ut_Slip(unittest.TestCase):
 	def getTestStream(self, filepath):
 		self.testFile = open(filepath, "rb")
 
-		# Bring the whole file into memory
-		# fileBytes = self.testFile.read()
-		# self.testFile.close()
-
 		# Decode the slip packets
-		self.slip.stream = self.testFile
-		testSlipPackets = self.slip.decodePackets()
+		testSlipPackets = self.slip.decodePackets(self.testFile)
 		self.testFile.close()
 
 		return testSlipPackets
@@ -25,7 +20,7 @@ class ut_Slip(unittest.TestCase):
 		packets = self.getTestStream("testdata.bin")
 
 		# Check that a correct amount of packets have been decoded
-		self.assertEqual(len(packets), 5)
+		self.assertEqual(len(packets), 4)
 
 		# Check content of first packet
 		self.assertEqual(packets[1][0], 10)
@@ -51,8 +46,7 @@ class ut_Slip(unittest.TestCase):
 	def testSLIPDecodeEncode(self):
 		nebSlip = slip.slip()
 		testFile = open("testdata.bin", "rb")
-		nebSlip.stream = testFile
-		initialPackets = nebSlip.decodePackets()
+		initialPackets = nebSlip.decodePackets(testFile)
 		testFile.close()
 
 		testFile = open("encodedPackets.bin", "wb")
@@ -62,8 +56,7 @@ class ut_Slip(unittest.TestCase):
 		testFile.close()
 
 		testFile = open("encodedPackets.bin", "rb")
-		nebSlip.stream = testFile
-		newPackets = nebSlip.decodePackets()
+		newPackets = nebSlip.decodePackets(testFile)
 		testFile.close()
 
 		for idx,newPacket in enumerate(newPackets):
