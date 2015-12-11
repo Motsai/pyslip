@@ -15,24 +15,12 @@ class slip():
 		self.SLIP_ESC = b'\xdb'		# dec: 219
 		self.SLIP_ESC_END = b'\xdc'	# dec: 220
 		self.SLIP_ESC_ESC = b'\xdd'	# dec: 221
-		self.serialComm = serialFD
-		
-	def attachSerialComm(self, serialFD):
-		self.serialComm = serialFD
 
-	def sendPacket(self, packet):
-		if self.serialComm == None:
-			raise Exception('Missing Serial Comm Object')
-		encodedPacket = self.encode(packet)
-		for char in encodedPacket:
-			sc.sendChar(char)
-
-	def sendPacketToStream(self, packet, stream):
+	def sendPacketToStream(self, stream, packet):
 		if stream == None:
 			raise Exception('Missing stream Object')
 		encodedPacket = self.encode(packet)
-		for char in encodedPacket:
-			sc.sendChar(char)
+		stream.write(encodedPacket)
 
 	def receivePacketFromStream(self, stream, length=1000):
 		if stream == None:
@@ -61,32 +49,6 @@ class slip():
 			elif received < length:
 				received = received + 1
 				packet += serialByte
-
-
-	def receivePacketFromComm(self):
-		if self.serialComm == None:
-			raise Exception('Missing Serial Comm Object')
-		packet = []
-		while 1:
-			serialByte = sc.receiveChar(self.serialComm)
-			if serialByte is None:
-				raise Exception('Bad character from serial interface')
-			elif serialByte == self.SLIP_END:
-				if len(packet) > 0:
-					return packet
-			elif serialByte == self.SLIP_ESC:
-				serialByte = sc.receiveChar(self.serialComm)
-				if serialByte is None:
-					return -1
-				elif serialByte == self.SLIP_ESC_END:
-					packet.append(self.SLIP_END)
-				elif serialByte == self.SLIP_ESC_ESC:
-					packet.append(self.SLIP_ESC)
-				else:
-					raise Exception('SLIP Protocol Error')
-			else:
-				 packet.append(serialByte)
-		return
 
 	def append(self, chunk):
 		self.stream += chunk
