@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import serial as sc
 import binascii
+import io
 
 # SLIP decoder
 class slip():
@@ -25,14 +26,18 @@ class slip():
 	def receivePacketFromStream(self, stream, length=1000):
 		if stream == None:
 			raise Exception('Missing stream Object')
+		fileStream = (type(stream) == io.BufferedReader)
 		packet = b''
 		received = 0
 		while 1:
 			serialByte = stream.read(1)
 			if serialByte is None:
 				raise Exception('Bad character from stream')
-			elif serialByte == b'': # EOF reached
-				return serialByte
+			elif len(serialByte) == 0:
+				if fileStream: # EOF reached
+					return serialByte
+				else:
+					raise TimeoutError('Read timed out')
 			elif serialByte == self.SLIP_END:
 				if len(packet) > 0:
 					return packet
@@ -40,6 +45,11 @@ class slip():
 				serialByte = stream.read(1)
 				if serialByte is None:
 					return -1
+				elif len(serialByte) == 0:
+					if fileStream: # EOF reached
+						return serialByte
+					else:
+						raise TimeoutError('Read timed out')
 				elif serialByte == self.SLIP_ESC_END:
 					packet += self.SLIP_END
 				elif serialByte == self.SLIP_ESC_ESC:
