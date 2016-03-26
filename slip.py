@@ -6,16 +6,11 @@ import io
 # SLIP decoder
 class slip():
 
-	def __init__(self, serialFD = None):
-		self.started = False
-		self.escaped = False
-		self.stream = b''
-		self.packet = bytearray()
-		self.rejectedPackets = []
-		self.SLIP_END = b'\xc0'		# dec: 192
-		self.SLIP_ESC = b'\xdb'		# dec: 219
-		self.SLIP_ESC_END = b'\xdc'	# dec: 220
-		self.SLIP_ESC_ESC = b'\xdd'	# dec: 221
+	# def __init__(self):
+	self.SLIP_END = b'\xc0'		# dec: 192
+	self.SLIP_ESC = b'\xdb'		# dec: 219
+	self.SLIP_ESC_END = b'\xdc'	# dec: 220
+	self.SLIP_ESC_ESC = b'\xdd'	# dec: 221
 
 	def sendPacketToStream(self, stream, packet):
 		if stream == None:
@@ -60,9 +55,6 @@ class slip():
 				received = received + 1
 				packet += serialByte
 
-	def append(self, chunk):
-		self.stream += chunk
-
 	def decodePackets(self, stream):
 		packetlist = []
 		packet = self.receivePacketFromStream(stream)
@@ -70,47 +62,6 @@ class slip():
 			packetlist.append(packet)
 			packet = self.receivePacketFromStream(stream)
 		return packetlist
-
-	def decode(self):
-		packetlist = []
-		for byte in self.stream:	
-			# SLIP_END
-			if byte == self.SLIP_END:
-				if self.started:
-					packetlist.append(self.packet)
-				else:
-					self.rejectedPackets.append(self.packet)
-					self.started = True
-				self.packet = ''
-			# SLIP_ESC
-			elif byte == self.SLIP_ESC:
-				self.escaped = True
-			# SLIP_ESC_END
-			elif byte == self.SLIP_ESC_END:
-				if self.escaped:
-					self.packet += self.SLIP_END
-					self.escaped = False
-				else:
-					self.packet += byte
-			# SLIP_ESC_ESC
-			elif byte == self.SLIP_ESC_ESC:
-				if self.escaped:
-					self.packet += self.SLIP_ESC
-					self.escaped = False
-				else:
-					self.packet += byte
-			# all others
-			else:
-				if self.escaped:
-					raise Exception('SLIP Protocol Error')
-					self.packet = ''
-					self.escaped = False
-				else:
-					self.packet += byte
-					# self.started = True
-		self.stream = ''
-		self.started = False
-		return (packetlist)
 		
 	def encode(self, packet):
 		# Encode an initial END character to flush out any data that 
