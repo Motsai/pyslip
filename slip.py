@@ -25,6 +25,7 @@ class slip():
         fileStream = (type(stream) == io.BufferedReader)
         packet = b''
         received = 0
+        stream._timeout = 1
         while 1:
             serialByte = stream.read(1)
             if serialByte is None:
@@ -33,7 +34,8 @@ class slip():
                 if fileStream: # EOF reached
                     return serialByte
                 else:
-                    raise TimeoutError('Read timed out')
+                    # raise TimeoutError('Read timed out')
+                    break
             elif serialByte == self.SLIP_END:
                 if len(packet) > 0:
                     return packet
@@ -45,7 +47,8 @@ class slip():
                     if fileStream: # EOF reached
                         return serialByte
                     else:
-                        raise TimeoutError('Read timed out')
+                        # raise TimeoutError('Read timed out')
+                        break
                 elif serialByte == self.SLIP_ESC_END:
                     packet += self.SLIP_END
                 elif serialByte == self.SLIP_ESC_ESC:
