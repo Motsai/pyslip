@@ -25,7 +25,7 @@ class slip():
         fileStream = (type(stream) == io.BufferedReader)
         packet = b''
         received = 0
-        stream._timeout = 1
+        stream._timeout = 0.01
         while 1:
             serialByte = stream.read(1)
             if serialByte is None:
